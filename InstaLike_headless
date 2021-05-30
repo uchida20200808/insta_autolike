@@ -1,0 +1,96 @@
+from selenium import webdriver #webページを操作するライブラリのインポート
+from selenium.common.exceptions import WebDriverException #例外クラスのインポート
+from selenium.webdriver.common.keys import Keys #特殊なキークラスのインポート
+from selenium.webdriver.common.action_chains import ActionChains 
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from time import sleep #休憩
+import random #乱数作成
+
+def login(user, psw):
+    driver.get('https://www.instagram.com/?hl=ja') #instagramのサイトにアクセスする
+    sleep(1)
+    
+    driver.find_element_by_name('username').send_keys(user) #メールアドレスを記入
+    sleep(1)
+    driver.find_element_by_name('password').send_keys(psw) #パスワードを記入
+    sleep(1)
+     #ログインボタンを押す 
+    driver.find_element_by_class_name('L3NKy       ').click() #ログインボタンを押す
+    sleep(random.randint(2, 5)) #2〜5秒停止
+    print(user+'にログインしました。')
+    sleep(1)
+    
+def tagsearch(tag):
+    instaurl = 'https://www.instagram.com/explore/tags/' #タグ検索用のリンク
+    driver.get(instaurl + tag) #タグを検索
+    sleep(random.randint(2, 10)) #2〜10秒停止
+    print(tag+'のタグで検索しました。')
+    sleep(1)
+
+def clicknice():
+    
+    target = driver.find_elements_by_class_name('_9AhH0')[10] #_9AhH0というCSSタグをもつデータをリスト型で取得し、10番目を選択する
+    #10番目が新着の1番最初にくる
+    actions = ActionChains(driver) #ActionChainsクラスのコンストラクタの引数に、対象driverを指定してインスタンスを作成
+    actions.key_down(Keys.CONTROL) #キーボードを押下した状態のままにする「key_down」
+    #Controlキーを押下しながら移動→表示件数の最下層まで移動する
+    actions.perform() #最後に「perform」を実行することで、これまでのメソッドをビルドした後、実行していきます。
+    print('投稿を表示しました。')
+    sleep(1)
+    
+    try:
+        driver.find_elements_by_class_name('_9AhH0')[9].click() #_9AhH0というCSSタグをもつデータをリスト型で取得し、9番目を選択する
+        #9番目は人気投稿の最後
+        sleep(random.randint(2, 10)) #2〜10秒停止
+        
+        driver.find_element_by_class_name('fr66n').click() #fr66nというCSSタグをもつデータを選択し、クリックする
+        #fr66nはいいねボタン
+        print('いいねしました。')
+        sleep(1)
+
+    except WebDriverException:
+        print('エラーが発生しました。')
+        return
+    
+    for i in range(random.randint(70, 100)): #70〜100回繰り返す
+        try:
+            driver.find_element_by_class_name('coreSpriteRightPaginationArrow').click() 
+            #coreSpriteRightPaginationArrowというCSSタグをもつデータを選択し、クリックする
+            # _65Bje  coreSpriteRightPaginationArrowが次の投稿に移る。
+            sleep(random.randint(random.randint(2, 5), random.randint(10, 15))) #2〜5秒から10〜15秒の間停止する
+
+        except WebDriverException:
+            print('エラーが発生しました。')
+            sleep(5)
+
+        try:
+            driver.find_element_by_class_name('fr66n').click()
+            #fr66nはいいねボタン
+            print('いいねしました。')
+            sleep(2)
+        except WebDriverException:
+            print('エラーが発生しました。')
+
+if __name__ == '__main__':
+
+    taglist = ['愛媛ランチ', '愛媛グルメ','愛媛カフェ', '愛媛県','愛媛県松山市', '愛媛ママ', '鯛めし','えひめ','愛媛', '松山市','伊予市','東温市','みきゃん']
+    
+users = ['XXXacountXXX'] #アカウント名
+psws = ['YYYpasswordYYY'] #パスワード
+    
+options = Options()
+options.binary_location = '/usr/bin/firefox'
+options.add_argument('-headless')
+    
+for user,psw in zip(users,psws):
+    driver = webdriver.Firefox(options=options) #Firefoxを操作する
+    sleep(1) 
+    login(user, psw) #関数loginを呼び出す
+        
+    tagsearch(random.choice(taglist)) #関数tagsearchを呼び出す
+    clicknice() #関数clickniceを呼び出す
+        
+    driver.close() #ブラウザを閉じる
+    print('ログアウトしました。')
+    sleep(5)
